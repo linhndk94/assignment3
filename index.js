@@ -17,7 +17,7 @@ async function consume() {
         ch.ack(msg);
         const input = {
             "Bucket": bucket,
-            "Key": msg
+            "Key": msg.content.toString()
         }
         const command = new GetObjectCommand(input);
         const response = await s3Client.send(command);
