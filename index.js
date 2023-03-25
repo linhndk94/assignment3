@@ -35,6 +35,10 @@ async function consume() {
         let writeStream = fs.createWriteStream(path.join(__dirname, "p" + fileName));
         console.log("Write the file");
         transform.pipe(writeStream);
+        console.log("Push to s3");
+        const fileContent = fs.readFileSync(path.join(__dirname, "p" + fileName));
+        const uploaded = await s3.upload({Bucket: bucket, Key: `processed/images/${fileName}`, Body: fileContent});
+        console.log("Location: " + uploaded.Location);
     }, {consumerTag: 'image_consumer'});
 }
 
