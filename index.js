@@ -2,9 +2,10 @@ const amqplib = require('amqplib');
 const fs = require('fs');
 const path = require('path');
 const Sharp = require('sharp')
-
+const stream = require('stream');
 const amqp_url = "amqp://assignment3:assignment3@54.237.122.168:5672";
 const AWS = require('aws-sdk');
+
 const s3 = new AWS.S3();
 const bucket = "assignment3-user2386042";
 
@@ -32,13 +33,8 @@ async function consume() {
         transform.resize(16, 16);
         console.log("Transform");
         readStream.pipe(transform);
-        let writeStream = fs.createWriteStream(path.join(__dirname, "p" + fileName));
-        console.log("Write the file");
-        transform.pipe(writeStream);
         console.log("Push to s3");
-        const fileContent = fs.readFileSync(path.join(__dirname, "p" + fileName));
-        const uploaded = await s3.upload({Bucket: bucket, Key: `processed/images/${fileName}`, Body: fileContent});
-        console.log("Location: " + uploaded.Location);
+        transform.pipe(uploadFromStream(s3, {Bucket: bucket, Key: `processed/images/${fileName}`}));
     }, {consumerTag: 'image_consumer'});
 }
 
@@ -48,15 +44,15 @@ function extractFileName(fileKey) {
     return split[split.length - 1];
 }
 
-function resize(fileName) {
-    console.log("fileName: " + fileName);
-    const readStream = fs.createReadStream(path.join(__dirname, fileName));
-    let transform = Sharp();
-    transform.toFormat("png");
-    transform.resize(16, 16);
-    readStream.pipe(transform);
-    let writeStream = fs.createWriteStream(path.join(__dirname, "p" + fileName));
-    transform.pipe(writeStream);
+function uploadFromStream(s3, {Bucket, Key}) {
+    const pass = new stream.PassThrough();
+
+    const params = {Bucket: Bucket, Key: Key, Body: pass};
+    s3.upload(params, function(err, data) {
+        console.log(err, data);
+    });
+
+    return pass;
 }
 
 consume();
