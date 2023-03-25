@@ -29,11 +29,13 @@ async function consume() {
 }
 
 function extractFileName(fileKey) {
+    console.log(fileKey);
     const split = fileKey.split("/");
     return split[split.length - 1];
 }
 
 function resize(fileName) {
+    console.log(fileName);
     const readStream = fs.createReadStream(path.join(__dirname, fileName));
     let transform = Sharp();
     transform.toFormat("png");
