@@ -3,11 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 const amqp_url = "amqp://assignment3:assignment3@54.237.122.168:5672";
-
-const { S3 } = require('@aws-sdk/client-s3');
-
+const AWS = require('aws-sdk');
 const region = "us-east-1";
-const s3 = new S3({region: region});
+const s3 = new AWS.S3();
 const bucket = "assignment3-user2386042";
 
 async function consume() {
