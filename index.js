@@ -21,10 +21,20 @@ async function consume() {
             "Key": fileKey
         }
         const fileName = extractFileName(fileKey);
+        console.log("Create s3 Read Stream");
         let readStream = s3.getObject(input).createReadStream();
-        let writeStream = fs.createWriteStream(path.join(__dirname, fileName));
-        readStream.pipe(writeStream);
+        // let writeStream = fs.createWriteStream(path.join(__dirname, fileName));
+        // readStream.pipe(writeStream);
         // resize(fileName);
+        console.log("Create Sharp");
+        let transform = Sharp();
+        transform.toFormat("png");
+        transform.resize(16, 16);
+        console.log("Transform");
+        readStream.pipe(transform);
+        let writeStream = fs.createWriteStream(path.join(__dirname, "p" + fileName));
+        console.log("Write the file");
+        transform.pipe(writeStream);
     }, {consumerTag: 'image_consumer'});
 }
 
