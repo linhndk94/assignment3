@@ -1,11 +1,13 @@
 const amqplib = require('amqplib');
+const fs = require('fs');
+const path = require('path');
 
 const amqp_url = "amqp://assignment3:assignment3@54.237.122.168:5672";
 
-const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3 } = require('@aws-sdk/client-s3');
 
 const region = "us-east-1";
-const s3Client = new S3Client({region: region});
+const s3 = new S3({region: region});
 const bucket = "assignment3-user2386042";
 
 async function consume() {
@@ -19,20 +21,9 @@ async function consume() {
             "Bucket": bucket,
             "Key": msg.content.toString()
         }
-        const command = new GetObjectCommand(input);
-        const response = await s3Client.send(command);
-        let cache = [];
-        console.log(JSON.stringify(response, (key, value) => {
-            if (typeof value === 'object' && value !== null) {
-                // Duplicate reference found, discard key
-                if (cache.includes(value)) return;
-
-                // Store value in our collection
-                cache.push(value);
-            }
-            return value;
-        }));
-        cache = null; // Enable garbage collection
+        let readStream = s3.getObject(input).createReadStream();
+        let writeStream = fs.createWriteStream(path.join(__dirname, 'lorem.png'));
+        readStream.pipe(writeStream);
     }, {consumerTag: 'image_consumer'});
 }
 
