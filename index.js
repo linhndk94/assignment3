@@ -24,18 +24,18 @@ async function consume() {
         let readStream = s3.getObject(input).createReadStream();
         let writeStream = fs.createWriteStream(path.join(__dirname, fileName));
         readStream.pipe(writeStream);
-        resize(fileName);
+        // resize(fileName);
     }, {consumerTag: 'image_consumer'});
 }
 
 function extractFileName(fileKey) {
-    console.log(fileKey);
+    console.log("fileKey: " + fileKey);
     const split = fileKey.split("/");
     return split[split.length - 1];
 }
 
 function resize(fileName) {
-    console.log(fileName);
+    console.log("fileName: " + fileName);
     const readStream = fs.createReadStream(path.join(__dirname, fileName));
     let transform = Sharp();
     transform.toFormat("png");
