@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.10.3",
-    "aws-sdk": "^2.1343.0"
+    "aws-sdk": "^2.1343.0",
+    "sharp": "^0.32.0"
   }
 }
